@@ -65,3 +65,22 @@ class fc_policy(nn.Module):
         means = self.model(x)
         stds = self.log_stds.expand(*means.shape)
         return torch.cat((means, stds), 1)
+
+def fc_relu_features(env, hidden=64):
+    return nn.Sequential(
+        nn.Flatten(), nn.Linear(env.state_space.shape[0] + 1, hidden), nn.ReLU()
+    )
+
+def fc_value_head(hidden=64):
+    return nn.Linear0(hidden, 1)
+
+class fc_policy_head(nn.Module):
+    def __init__(self, env, hidden=64):
+        super().__init__()
+        self.model = nn.Linear0(hidden, env.action_space.shape[0])
+        self.log_stds = nn.Parameter(torch.zeros(env.action_space.shape[0]))
+
+    def forward(self, x):
+        means = self.model(x)
+        stds = self.log_stds.expand(*means.shape)
+        return torch.cat((means, stds), 1)

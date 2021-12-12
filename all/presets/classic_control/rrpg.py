@@ -1,7 +1,7 @@
 import copy
 from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
-from all.agents import VPG, VPGTestAgent
+from all.agents import RRPG, RRPGTestAgent
 from all.approximation import VNetwork, FeatureNetwork
 from all.bodies import DeepmindAtariBody
 from all.logging import DummyWriter
@@ -15,8 +15,8 @@ default_hyperparameters = {
     # Common settings
     "discount_factor": 0.99,
     # Adam optimizer settings
-    "lr_v": 1e-5, #5e-3,
-    "lr_pi": 5e-3, #1e-4,
+    "lr_v": 1e-5,
+    "lr_pi": 5e-3,
     "eps": 1.5e-4,
     # Other optimization settings
     "clip_grad": 0.5,
@@ -29,9 +29,9 @@ default_hyperparameters = {
 }
 
 
-class VPGClassicControlPreset(Preset):
+class RRPGClassicControlPreset(Preset):
     """
-    Vanilla Policy Gradient (VPG) Classic Control preset.
+    Russian Roulette Gradient (RRPG) Classic Control preset.
 
     Args:
         env (all.environments.AtariEnvironment): The environment for which to construct the agent.
@@ -85,15 +85,15 @@ class VPGClassicControlPreset(Preset):
             writer=writer
         )
 
-        return VPG(features, v, policy, discount_factor=self.hyperparameters["discount_factor"], min_batch_size=self.hyperparameters["min_batch_size"])
+        return RRPG(features, v, policy, discount_factor=self.hyperparameters["discount_factor"], min_batch_size=self.hyperparameters["min_batch_size"])
 
     def test_agent(self):
         features = FeatureNetwork(copy.deepcopy(self.feature_model))
         policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
-        return VPGTestAgent(features, policy)
+        return RRPGTestAgent(features, policy)
 
     def parallel_test_agent(self):
         return self.test_agent()
 
 
-vpg = PresetBuilder('vpg', default_hyperparameters, VPGClassicControlPreset)
+rrpg = PresetBuilder('rrpg', default_hyperparameters, RRPGClassicControlPreset)

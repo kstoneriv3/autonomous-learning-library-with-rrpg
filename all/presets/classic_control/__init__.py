@@ -2,6 +2,7 @@ from .a2c import a2c, A2CClassicControlPreset
 from .c51 import c51, C51ClassicControlPreset
 from .ddqn import ddqn, DDQNClassicControlPreset
 from .dqn import dqn, DQNClassicControlPreset
+from .mlpg import rrpg, RRPGClassicControlPreset
 from .ppo import ppo, PPOClassicControlPreset
 from .rainbow import rainbow, RainbowClassicControlPreset
 from .vac import vac, VACClassicControlPreset
@@ -14,6 +15,7 @@ __all__ = [
     "c51",
     "ddqn",
     "dqn",
+    "rrpg",
     "ppo",
     "rainbow",
     "vac",

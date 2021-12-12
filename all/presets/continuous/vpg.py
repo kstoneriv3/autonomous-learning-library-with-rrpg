@@ -3,20 +3,20 @@ from torch.optim import Adam
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from all.agents import VPG, VPGTestAgent
 from all.approximation import VNetwork, FeatureNetwork
-from all.bodies import DeepmindAtariBody
+from all.bodies import TimeFeature
 from all.logging import DummyWriter
-from all.policies import SoftmaxPolicy
+from all.policies import GaussianPolicy
 from all.presets.builder import PresetBuilder
 from all.presets.preset import Preset
-from all.presets.classic_control.models import fc_relu_features, fc_policy_head, fc_value_head
+from all.presets.continuous.models import fc_relu_features, fc_policy_head, fc_value_head
 
 
 default_hyperparameters = {
     # Common settings
-    "discount_factor": 0.99,
+    "discount_factor": 0.98,
     # Adam optimizer settings
-    "lr_v": 1e-5, #5e-3,
-    "lr_pi": 5e-3, #1e-4,
+    "lr_v": 1e-4, #5e-3,
+    "lr_pi": 1e-2, #1e-4,
     "eps": 1.5e-4,
     # Other optimization settings
     "clip_grad": 0.5,
@@ -29,7 +29,7 @@ default_hyperparameters = {
 }
 
 
-class VPGClassicControlPreset(Preset):
+class VPGContinuousPreset(Preset):
     """
     Vanilla Policy Gradient (VPG) Classic Control preset.
 
@@ -54,6 +54,7 @@ class VPGClassicControlPreset(Preset):
 
     def __init__(self, env, name, device, **hyperparameters):
         super().__init__(name, device, hyperparameters)
+        self.action_space = env.action_space
         self.value_model = hyperparameters['value_model_constructor']().to(device)
         self.policy_model = hyperparameters['policy_model_constructor'](env).to(device)
         self.feature_model = hyperparameters['feature_model_constructor'](env).to(device)
@@ -78,22 +79,23 @@ class VPGClassicControlPreset(Preset):
             writer=writer
         )
 
-        policy = SoftmaxPolicy(
+        policy = GaussianPolicy(
             self.policy_model,
             policy_optimizer,
+            self.action_space,
             clip_grad=self.hyperparameters["clip_grad"],
             writer=writer
         )
 
-        return VPG(features, v, policy, discount_factor=self.hyperparameters["discount_factor"], min_batch_size=self.hyperparameters["min_batch_size"])
+        return TimeFeature(VPG(features, v, policy, discount_factor=self.hyperparameters["discount_factor"], min_batch_size=self.hyperparameters["min_batch_size"]))
 
     def test_agent(self):
         features = FeatureNetwork(copy.deepcopy(self.feature_model))
-        policy = SoftmaxPolicy(copy.deepcopy(self.policy_model))
-        return VPGTestAgent(features, policy)
+        policy = GaussianPolicy(copy.deepcopy(self.policy_model), space=self.action_space)
+        return TimeFeature(VPGTestAgent(features, policy))
 
     def parallel_test_agent(self):
         return self.test_agent()
 
 
-vpg = PresetBuilder('vpg', default_hyperparameters, VPGClassicControlPreset)
+vpg = PresetBuilder('vpg', default_hyperparameters, VPGContinuousPreset)

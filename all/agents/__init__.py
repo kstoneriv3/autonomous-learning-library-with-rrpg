@@ -7,6 +7,7 @@ from .ddpg import DDPG, DDPGTestAgent
 from .ddqn import DDQN, DDQNTestAgent
 from .dqn import DQN, DQNTestAgent
 from .independent import IndependentMultiagent
+from .mlpg import MLPG, MLPGTestAgent
 from .ppo import PPO, PPOTestAgent
 from .rainbow import Rainbow, RainbowTestAgent
 from .sac import SAC, SACTestAgent
@@ -32,6 +33,8 @@ __all__ = [
     "DDQNTestAgent",
     "DQN",
     "DQNTestAgent",
+    "MLPG",
+    "MLPGTestAgent",
     "PPO",
     "PPOTestAgent",
     "Rainbow",
