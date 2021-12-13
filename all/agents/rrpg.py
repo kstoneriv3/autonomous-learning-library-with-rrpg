@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from torch.nn.functional import mse_loss
 from all.core import State
@@ -32,6 +33,7 @@ class RRPG(Agent):
         self.policy = policy
         self.discount_factor = discount_factor
         self.alpha = discount_factor**0.7
+        self.trunc_probs = 1 - self.alpha ** np.arange(1000)
         self.min_batch_size = min_batch_size
         self._current_batch_size = 0
         self._trajectories = []
@@ -68,8 +70,8 @@ class RRPG(Agent):
 
     def _terminal(self, state, reward):
         self._rewards.append(reward)
-        T_trunc = sample_trunc_time(len(self._rewards))
-        print(T_trunc)
+        T_trunc = self.sample_trunc_time(len(self._rewards))
+        #print(T_trunc)
         features = State.array(self._features[:T_trunc])
         rewards = torch.tensor(self._rewards[:T_trunc], device=features.device)
         log_pis = torch.stack(self._log_pis[:T_trunc])
@@ -103,10 +105,11 @@ class RRPG(Agent):
             in self._trajectories
         ])
         advantages = targets - values.detach()
+        discounts = (self.discount_factor / self.alpha) ** torch.arange(values.shape[0], device=values.device)
 
         # compute losses
         value_loss = mse_loss(values, targets)
-        policy_loss = -(advantages * log_pis).mean()
+        policy_loss = -(discounts * advantages * log_pis).mean()
 
         # backward pass
         self.v.reinforce(value_loss)
@@ -127,15 +130,11 @@ class RRPG(Agent):
             t -= 1
         return returns
 
-    # property
-    trunc_probs = 1 - alpha ** np.arange(1000)[::-1]
-
-    @staticmethod
-    def sample_trunc_time(T_max):
+    def sample_trunc_time(self, T_max):
         assert T_max <= 1000
-        return np.searchsorted(self.trunc_prob[:T_max], np.random.rand(1)[0])
+        return np.searchsorted(self.trunc_probs[:T_max], np.random.rand(1)[0])
 
 
 
 
-VPGTestAgent = A2CTestAgent
+RRPGTestAgent = A2CTestAgent

@@ -108,10 +108,11 @@ class VPG(Agent):
             in self._trajectories
         ])
         advantages = targets - values.detach()
+        discounts = self.discount_factor ** torch.arange(values.shape[0], device=values.device)
 
         # compute losses
         value_loss = mse_loss(values, targets)
-        policy_loss = -(advantages * log_pis).mean()
+        policy_loss = -(discounts * advantages * log_pis).mean()
 
         # backward pass
         self.v.reinforce(value_loss)

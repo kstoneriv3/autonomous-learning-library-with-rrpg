@@ -31,7 +31,7 @@ default_hyperparameters = {
 
 class VPGContinuousPreset(Preset):
     """
-    Vanilla Policy Gradient (VPG) Classic Control preset.
+    Vanilla Policy Gradient (VPG) Continuous Control preset.
 
     Args:
         env (all.environments.AtariEnvironment): The environment for which to construct the agent.

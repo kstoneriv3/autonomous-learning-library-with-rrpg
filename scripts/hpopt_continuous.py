@@ -4,13 +4,13 @@ import optuna
 from all.environments import GymEnvironment
 from all.experiments import run_experiment
 from all.experiments.single_env_experiment import SingleEnvExperiment
-from all.presets import classic_control
+from all.presets import continuous
 
 
 
 def evaluate_hp(hyperparameters):
-    env = GymEnvironment('CartPole-v1', device='cuda')
-    agent = getattr(classic_control, 'rrpg')
+    env = GymEnvironment('Pendulum-v0', device='cuda')
+    agent = getattr(continuous, 'rrpg')
     agent = agent.device('cuda')
     agent = agent.hyperparameters(**hyperparameters)
     preset = agent.env(env).build()
@@ -24,7 +24,7 @@ def evaluate_hp(hyperparameters):
         write_loss=False,
         writer='tensorboard',
     )
-    experiment.train(frames=50000)
+    experiment.train(frames=200000)
     returns = experiment.test(episodes=100)
     experiment.close()
 

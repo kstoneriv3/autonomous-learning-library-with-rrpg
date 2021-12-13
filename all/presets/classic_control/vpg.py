@@ -15,8 +15,8 @@ default_hyperparameters = {
     # Common settings
     "discount_factor": 0.99,
     # Adam optimizer settings
-    "lr_v": 1e-5, #5e-3,
-    "lr_pi": 5e-3, #1e-4,
+    "lr_v": 2e-6,
+    "lr_pi": 1e-2,
     "eps": 1.5e-4,
     # Other optimization settings
     "clip_grad": 0.5,
