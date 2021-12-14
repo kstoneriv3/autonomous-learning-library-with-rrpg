@@ -21,6 +21,7 @@ def main():
     parser.add_argument("--pca_matrix", type=str, default='ar1', help="ar0, ar1, ar2.")
     parser.add_argument("--scramble", type=str2bool, default=True)
     parser.add_argument("--batch_reseeding", type=str2bool, default=False)
+    parser.add_argument("--min_batch_size", type=int, default=16)
     parser.add_argument(
         "--device",
         default="cuda",
@@ -61,7 +62,10 @@ def main():
 
 
     # parse hyperparameters
-    hyperparameters = {'batch_reseeding': args.batch_reseeding}
+    hyperparameters = {
+        'batch_reseeding': args.batch_reseeding,
+        'min_batch_size': args.min_batch_size,
+    }
     for hp in args.hyperparameters:
         key, value = hp.split('=')
         hyperparameters[key] = type(agent.default_hyperparameters[key])(value)
