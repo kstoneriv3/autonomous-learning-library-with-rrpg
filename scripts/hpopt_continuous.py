@@ -32,8 +32,8 @@ def evaluate_hp(hyperparameters):
 
 def objective(trial):
     hyperparameters = {
-        'lr_v': trial.suggest_loguniform('lr_v', 2e-6, 2e-1),
-        'lr_pi': trial.suggest_loguniform('lr_pi', 1e-4, 1e-1),
+        'lr_v': trial.suggest_loguniform('lr_v', 1e-8, 1e-1),
+        'lr_pi': trial.suggest_loguniform('lr_pi', 1e-8, 1e-1),
     }
     return np.mean([evaluate_hp(hyperparameters) for i in range(5)])
 

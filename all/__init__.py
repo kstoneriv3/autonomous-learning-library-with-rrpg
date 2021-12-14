@@ -8,6 +8,7 @@ import all.nn
 import all.optim
 import all.policies
 import all.presets
+import all.qmc
 from all.core import State, StateArray
 
 __all__ = [
@@ -21,6 +22,7 @@ __all__ = [
     'optim',
     'policies',
     'presets',
+    'qmc',
     'State',
     'StateArray'
 ]
