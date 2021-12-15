@@ -14,13 +14,13 @@ qmcpg(){
 
 all_tasks(){
   source $venv/bin/activate
-  echo Starting VPG ...
+  echo "[$(date)]: Starting VPG ..."
   vpg
-  echo Starting RRPG ...
+  echo "[$(date)]: Starting RRPG ..."
   rrpg
-  echo Starting QMCPG ...
+  echo "[$(date)]: Starting QMCPG..."
   qmcpg
-  echo Finished all three tasks.
+  echo "[$(date)]: Finished all three tasks."
 }
 
 open_sem(){
