@@ -19,6 +19,7 @@ qmcpg(){
 
 all_tasks(){
   #source $venv/bin/activate
+  echo Starting a new task...
   vpg
   rrpg
   qmcpg
@@ -50,7 +51,7 @@ run_with_lock(){
 #read -p 'The path of the virtual env: ' venv
 #venv=${venv:-~/Desktop/dev_env_rl}
 
-n_iter=4 #100
+n_iter=8 #100
 N=16
 open_sem $N
 for ((j=1;j<=$n_iter;j++)); do
