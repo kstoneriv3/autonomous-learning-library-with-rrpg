@@ -28,7 +28,7 @@ class ExperimentWriter(SummaryWriter, Writer):
         while name_duplicated:
             try:
                 current_time = datetime.now().strftime('%Y-%m-%d_%H:%M:%S_%f')
-                dir_name = "%s_%s_%s_%s" % (agent_name, COMMIT_HASH, time_hash, current_time)
+                dir_name = "%s_%s_%s" % (agent_name, COMMIT_HASH, current_time)
                 os.makedirs(os.path.join(logdir, dir_name, env_name))
                 name_duplicated = False
             except:

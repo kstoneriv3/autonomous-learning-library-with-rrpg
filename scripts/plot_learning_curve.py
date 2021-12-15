@@ -45,8 +45,8 @@ def main():
     plot_with_confint(buckets, returns, "(Undiscounted) Cummulative Reward ", out_dir) 
     plot_with_confint(buckets, discounted_returns, "Discounted Cummulative Reward", out_dir) 
     plot_with_confint(buckets, grad_norm2, "Squared Norm of Gradient", out_dir, log=True) 
-    plot_with_confint(buckets, grad_var, "Variance of Gradient", out_dir, log=True) 
-    plot_with_confint(buckets, grad_cost, "Average Episode Length", out_dir, log=True) 
+    plot_with_confint(buckets, grad_var, "Variance of Gradient for a Batch", out_dir, log=True) 
+    plot_with_confint(buckets, grad_cost, "Cost of a Batch", out_dir, log=True) 
     plot_with_confint(buckets, grad_var_times_cost, "Variance for Unit Cost", out_dir, log=True) 
 
 def bucket_average(csv_path, buckets):
