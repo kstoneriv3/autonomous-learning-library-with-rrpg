@@ -34,7 +34,6 @@ def run_experiment(
                 write_loss=write_loss,
                 writer=writer
             )
-            assert False
             experiment.train(frames=frames)
             experiment.save()
             experiment.test(episodes=test_episodes)
