@@ -21,10 +21,10 @@ all_tasks(){
   #source $venv/bin/activate
   echo "[$(date)]: Starting VPG ..."
   vpg
-  echo "[$(date)]: Starting RRPG ..."
-  rrpg
   echo "[$(date)]: Starting QMCPG..."
   qmcpg
+  echo "[$(date)]: Starting RRPG ..."
+  rrpg
   echo "[$(date)]: Finished all three tasks."
 }
 
