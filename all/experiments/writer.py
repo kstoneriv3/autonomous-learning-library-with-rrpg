@@ -1,8 +1,8 @@
-
 import os
 import csv
 import subprocess
 from datetime import datetime
+from time import time
 from tensorboardX import SummaryWriter
 from all.logging import Writer
 
@@ -23,9 +23,16 @@ class ExperimentWriter(SummaryWriter, Writer):
 
     def __init__(self, experiment, agent_name, env_name, loss=True, logdir='runs'):
         self.env_name = env_name
-        current_time = datetime.now().strftime('%Y-%m-%d_%H:%M:%S_%f')
-        dir_name = "%s_%s_%s" % (agent_name, COMMIT_HASH, current_time)
-        os.makedirs(os.path.join(logdir, dir_name, env_name))
+        # In parallel execution, there shouldn't be duplication of file names.
+        name_duplicated = True
+        while name_duplicated:
+            try:
+                current_time = datetime.now().strftime('%Y-%m-%d_%H:%M:%S_%f')
+                dir_name = "%s_%s_%s_%s" % (agent_name, COMMIT_HASH, time_hash, current_time)
+                os.makedirs(os.path.join(logdir, dir_name, env_name))
+                name_duplicated = False
+            except:
+                pass
         self.log_dir = os.path.join(logdir, dir_name)
         self._experiment = experiment
         self._loss = loss
