@@ -21,7 +21,7 @@ default_hyperparameters = {
     # Other optimization settings
     "clip_grad": 0.5,
     "value_loss_scaling": 0.25,
-    "min_batch_size": 500,
+    "min_batch_size": 48,
     # Model construction
     "feature_model_constructor": fc_relu_features,
     "value_model_constructor": fc_value_head,

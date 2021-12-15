@@ -2,7 +2,7 @@ import argparse
 from all.environments import GymEnvironment
 from all.experiments import run_experiment
 from all.presets import classic_control
-
+from utils import str2bool
 
 def main():
     parser = argparse.ArgumentParser(description="Run a classic control benchmark.")
@@ -15,7 +15,8 @@ def main():
         default="cuda",
         help="The name of the device to run the agent on (e.g. cpu, cuda, cuda:0).",
     )
-    parser.add_argument("--min_batch_size", type=int, default=16)
+    parser.add_argument("--quiet", type=str2bool, default=False)
+    #parser.add_argument("--min_batch_size", type=int, default=16)
     parser.add_argument(
         "--frames", type=int, default=50000, help="The number of training frames."
     )
@@ -41,7 +42,7 @@ def main():
     agent = agent.device(args.device)
 
     # parse hyperparameters
-    hyperparameters = {'min_batch_size': args.min_batch_size}
+    hyperparameters = {} #{'min_batch_size': args.min_batch_size}
     for hp in args.hyperparameters:
         key, value = hp.split('=')
         hyperparameters[key] = type(agent.default_hyperparameters[key])(value)
@@ -54,6 +55,7 @@ def main():
         render=args.render,
         logdir=args.logdir,
         writer=args.writer,
+        quiet=args.quiet,
     )
 
 

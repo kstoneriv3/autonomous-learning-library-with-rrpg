@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from scipy import stats
 import torch
+from ..agents.rrpg import RRPG
 
 
 class Experiment(ABC):
@@ -54,11 +55,33 @@ class Experiment(ABC):
     def episode(self):
         '''The index of the current training episode'''
 
-    def _log_training_episode(self, returns, fps, total_frames):
+    def _log_training_episode(self, returns, fps, discounted_returns=None, grad_var=None, grad_norm=None, grad_cost=None):
         if not self._quiet:
-            print('episode: {}, frame: {}, fps: {}, returns: {}'.format(self.episode, self.frame, int(fps), returns))
+            if isinstance(self._agent, RRPG):
+                print('episode: {}, frame: {}, effective frame: {}, fps: {}, returns: {}'.format(
+                    self.episode, self.frame, self.effective_frame, int(fps), returns
+                ))
+            else:
+                print('episode: {}, frame: {}, fps: {}, returns: {}'.format(
+                    self.episode, self.frame, int(fps), returns
+                ))
         if returns > self._best_returns:
             self._best_returns = returns
+
+        # returns and so on
+        # (only for SingleEnvExperiment, we have discounted_returns, grad_var*cost, grad_norm)
+        self._writer.add_summary('returns', returns, 0, step="frame")
+        if discounted_returns is not None:
+            self._writer.add_summary('discounted_returns', discounted_returns, 0, step="frame")
+        if grad_var is not None:
+            self._writer.add_summary('grad_var', grad_var, 0, step="frame")
+        if grad_norm is not None:
+            self._writer.add_summary('grad_norm', grad_norm, 0, step="frame")
+        if grad_cost is not None:
+            self._writer.add_summary('grad_cost', grad_cost, 0, step="frame")
+
+
+        # return 100
         self._returns100.append(returns)
         if len(self._returns100) == 100:
             mean = np.mean(self._returns100)

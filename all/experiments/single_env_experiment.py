@@ -3,6 +3,7 @@ import numpy as np
 from .writer import ExperimentWriter, CometWriter
 
 from .experiment import Experiment
+from ..agents import QMCPG, RRPG, VPG
 
 
 class SingleEnvExperiment(Experiment):
@@ -28,6 +29,8 @@ class SingleEnvExperiment(Experiment):
         self._env = env
         self._render = render
         self._frame = 1
+        if isinstance(self._agent, RRPG):
+            self.effective_frame = 1
         self._episode = 1
 
         if render:
@@ -64,22 +67,44 @@ class SingleEnvExperiment(Experiment):
         state = self._env.reset()
         action = self._agent.act(state)
         returns = 0
+        discounted_returns = 0
 
         # loop until the episode is finished
+        discount = 1
         while not state.done:
             if self._render:
                 self._env.render()
             state = self._env.step(action)
             action = self._agent.act(state)
             returns += state.reward
+            discounted_returns += discount * state.reward
             self._frame += 1
+            discount *= self._agent.discount_factor
+
+        if isinstance(self._agent, RRPG):
+            self.effective_frame += self._agent.T_trunc
+        if isinstance(self._agent, (QMCPG, RRPG, VPG)):
+            is_grad_available = self._agent.is_grad_available()
+        else:
+            is_grad_available = False
 
         # stop the timer
         end_time = timer()
         fps = (self._frame - start_frame) / (end_time - start_time)
 
         # log the results
-        self._log_training_episode(returns, fps)
+        if is_grad_available:
+            grad_var, grad_norm, grad_cost = self._agent.get_grad_info()
+            self._log_training_episode(
+                returns,
+                fps,
+                discounted_returns=discounted_returns,
+                grad_var=grad_var,
+                grad_norm=grad_norm,
+                grad_cost=grad_cost,
+            )
+        else:
+            self._log_training_episode(returns, fps, discounted_returns=discounted_returns)
 
         # update experiment state
         self._episode += 1

@@ -2,26 +2,17 @@ import argparse
 from all.experiments import run_experiment
 from all.presets import classic_control
 from all.qmc import QMCEngine, QMCCartPole_v1
-
-
-def str2bool(v):
-    if isinstance(v, bool):
-        return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
+from utils import str2bool
 
 
 def main():
     parser = argparse.ArgumentParser(description="Run a classic control benchmark.")
-    parser.add_argument("--qmc_type", type=str, default='Halton', help="Name of the QMC sequence.")
+    parser.add_argument("--qmc_type", type=str, default='Sobol', help="Name of the QMC sequence.")
     parser.add_argument("--pca_matrix", type=str, default='ar1', help="ar0, ar1, ar2.")
     parser.add_argument("--scramble", type=str2bool, default=True)
-    parser.add_argument("--batch_reseeding", type=str2bool, default=False)
-    parser.add_argument("--min_batch_size", type=int, default=16)
+    parser.add_argument("--batch_reseeding", type=str2bool, default=True)
+    parser.add_argument("--quiet", type=str2bool, default=False)
+    # parser.add_argument("--min_batch_size", type=int, default=16)
     parser.add_argument(
         "--device",
         default="cuda",
@@ -64,7 +55,7 @@ def main():
     # parse hyperparameters
     hyperparameters = {
         'batch_reseeding': args.batch_reseeding,
-        'min_batch_size': args.min_batch_size,
+        # 'min_batch_size': args.min_batch_size,
     }
     for hp in args.hyperparameters:
         key, value = hp.split('=')
@@ -78,6 +69,7 @@ def main():
         render=args.render,
         logdir=args.logdir,
         writer=args.writer,
+        quiet=args.quiet,
     )
 
 

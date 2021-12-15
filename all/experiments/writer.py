@@ -61,7 +61,10 @@ class ExperimentWriter(SummaryWriter, Writer):
 
     def _get_step(self, _type):
         if _type == "frame":
-            return self._experiment.frame
+            try:
+                return self._experiment.effective_frame
+            except:
+                return self._experiment.frame
         if _type == "episode":
             return self._experiment.episode
         return _type

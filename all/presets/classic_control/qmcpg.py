@@ -24,7 +24,7 @@ default_hyperparameters = {
     # Other optimization settings
     "clip_grad": 0.5,
     "value_loss_scaling": 0.25,
-    "min_batch_size": 500,
+    "min_batch_size": 16,
     "batch_reseeding": False,
     # Model construction
     "feature_model_constructor": fc_relu_features,

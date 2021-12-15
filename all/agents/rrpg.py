@@ -4,7 +4,7 @@ from torch.nn.functional import mse_loss
 from all.core import State
 from ._agent import Agent
 from .a2c import A2CTestAgent
-
+from .utils import make_grads_observable, flatten_grads
 
 class RRPG(Agent):
     '''
@@ -26,7 +26,8 @@ class RRPG(Agent):
             v,
             policy,
             discount_factor=0.99,
-            min_batch_size=1
+            min_batch_size=1,
+            observe_grads=True,
     ):
         self.features = features
         self.v = v
@@ -40,6 +41,13 @@ class RRPG(Agent):
         self._features = []
         self._log_pis = []
         self._rewards = []
+
+        self._grad_var = None
+        self._grad_norm = None
+        self._observe_grads = observe_grads
+        
+        if observe_grads:
+            make_grads_observable(self)
 
     def act(self, state):
         if not self._features:
@@ -70,11 +78,10 @@ class RRPG(Agent):
 
     def _terminal(self, state, reward):
         self._rewards.append(reward)
-        T_trunc = self.sample_trunc_time(len(self._rewards))
-        #print(T_trunc)
-        features = State.array(self._features[:T_trunc])
-        rewards = torch.tensor(self._rewards[:T_trunc], device=features.device)
-        log_pis = torch.stack(self._log_pis[:T_trunc])
+        self.T_trunc = self.sample_trunc_time(len(self._rewards))
+        features = State.array(self._features[:self.T_trunc])
+        rewards = torch.tensor(self._rewards[:self.T_trunc], device=features.device)
+        log_pis = torch.stack(self._log_pis[:self.T_trunc])
         self._trajectories.append((features, rewards, log_pis))
         # self._current_batch_size += len(features)
         self._current_batch_size += 1
@@ -114,8 +121,22 @@ class RRPG(Agent):
 
         # backward pass
         self.v.reinforce(value_loss)
-        self.policy.reinforce(policy_loss)
-        self.features.reinforce()
+        if self._observe_grads:
+            grads = []
+            grads += self.policy.reinforce(policy_loss, return_grad=True)[1]
+            grads += self.features.reinforce(return_grad=True)[1]
+            grads = flatten_grads(grads)
+            self._grad_norm = float(torch.norm(grads))
+            # almost unbiased two sample estimator
+            try:
+                self._grad_var = float(0.5 * torch.sum((grads - self._prev_grads) ** 2))
+            except:
+                self._grad_var = float(torch.sum(grads ** 2))
+            self._prev_grads = grads
+            self._grad_cost = values.shape[0]
+        else:
+            self.policy.reinforce(policy_loss)
+            self.features.reinforce()
 
         # cleanup
         self._trajectories = []
@@ -135,7 +156,19 @@ class RRPG(Agent):
         assert T_max <= 1000
         return np.searchsorted(self.trunc_probs[:T_max], np.random.rand(1)[0])
 
+    def is_grad_available(self):
+        return (self._grad_var is not None) and (self._grad_norm is not None) and (self._grad_cost is not None)
 
+    def get_grad_info(self):
+        # Return grad_var and grad_norm, then reset the values
+        # so that grad_info is not available until next gradient calculation
+        grad_var = self._grad_var
+        grad_norm = self._grad_norm
+        grad_cost = self._grad_cost
+        self._grad_var = None
+        self._grad_norm = None
+        self._grad_cost = None
+        return grad_var, grad_norm, grad_cost
 
 
 RRPGTestAgent = A2CTestAgent

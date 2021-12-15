@@ -1,10 +1,11 @@
+import types
 import numpy as np
 import torch
 from torch.nn.functional import mse_loss
 from all.core import State
 from ._agent import Agent
 from .a2c import A2CTestAgent
-
+from .utils import make_grads_observable, flatten_grads
 
 class QMCPG(Agent):
     """
@@ -21,7 +22,7 @@ class QMCPG(Agent):
     """
 
     def __init__(
-        self, features, v, policy, qmc_engine, discount_factor=0.99, min_batch_size=1, batch_reseeding=False,
+        self, features, v, policy, qmc_engine, discount_factor=0.99, min_batch_size=1, batch_reseeding=False, observe_grads=True,
     ):
         self.features = features
         self.v = v
@@ -35,6 +36,13 @@ class QMCPG(Agent):
         self._features = []
         self._log_pis = []
         self._rewards = []
+
+        self._grad_var = None
+        self._grad_norm = None
+        self._observe_grads = observe_grads
+        
+        if observe_grads:
+            make_grads_observable(self)
 
     def act(self, state):
         if not self._features:
@@ -110,8 +118,22 @@ class QMCPG(Agent):
 
         # backward pass
         self.v.reinforce(value_loss)
-        self.policy.reinforce(policy_loss)
-        self.features.reinforce()
+        if self._observe_grads:
+            grads = []
+            grads += self.policy.reinforce(policy_loss, return_grad=True)[1]
+            grads += self.features.reinforce(return_grad=True)[1]
+            grads = flatten_grads(grads)
+            self._grad_norm = float(torch.norm(grads))
+            # almost unbiased two sample estimator
+            try:
+                self._grad_var = float(0.5 * torch.sum((grads - self._prev_grads) ** 2))
+            except:
+                self._grad_var = float(torch.sum(grads ** 2))
+            self._prev_grads = grads
+            self._grad_cost = values.shape[0]
+        else:
+            self.policy.reinforce(policy_loss)
+            self.features.reinforce()
 
         # cleanup
         self._trajectories = []
@@ -141,6 +163,20 @@ class QMCPG(Agent):
             return distribution.mean + distribution.scale * noise
         else:
             assert False
+
+    def is_grad_available(self):
+        return (self._grad_var is not None) and (self._grad_norm is not None) and (self._grad_cost is not None)
+
+    def get_grad_info(self):
+        # Return grad_var and grad_norm, then reset the values
+        # so that grad_info is not available until next gradient calculation
+        grad_var = self._grad_var
+        grad_norm = self._grad_norm
+        grad_cost = self._grad_cost
+        self._grad_var = None
+        self._grad_norm = None
+        self._grad_cost = None
+        return grad_var, grad_norm, grad_cost
 
 
 QMCPGTestAgent = A2CTestAgent
