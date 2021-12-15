@@ -14,9 +14,13 @@ qmcpg(){
 
 all_tasks(){
   source $venv/bin/activate
+  echo Starting VPG ...
   vpg
+  echo Starting RRPG ...
   rrpg
+  echo Starting QMCPG ...
   qmcpg
+  echo Finished all three tasks.
 }
 
 open_sem(){
