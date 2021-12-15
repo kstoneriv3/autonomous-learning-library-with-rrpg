@@ -5,6 +5,7 @@ autonomous_learning_library.egg-info
 
 # logs
 *csv
+lsf*
 
 # build directories
 /build

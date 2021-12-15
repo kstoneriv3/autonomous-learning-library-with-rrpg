@@ -6,15 +6,15 @@ hello(){
 }
 
 vpg(){
-  python scripts/classic.py CartPole-v1 vpg --frames 200000 --quiet True --device cpu
+  python scripts/classic.py CartPole-v1 vpg --frames 2000000 --quiet True --device cpu --logdir long_runs --hyperparameters lr_pi=8e-3
 }
 
 rrpg(){
-  python scripts/classic.py CartPole-v1 rrpg --frames 650000  --quiet True --device cpu
+  python scripts/classic.py CartPole-v1 rrpg --frames 7000000  --quiet True --device cpu --logdir long_runs --hyperparameters lr_pi=8e-3
 }
 
 qmcpg(){
-  python scripts/classic_qmc.py --frames 200000 --quiet True --device cpu
+  python scripts/classic_qmc.py --frames 2000000 --quiet True --device cpu --logdir long_runs --hyperparameters lr_pi=8e-3
 }
 
 all_tasks(){
@@ -55,7 +55,7 @@ run_with_lock(){
 #venv=${venv:-~/Desktop/dev_env_rl}
 
 N=32  # maximum number of cores available to normal user is 48
-n_iter=$N*12  # 12 iterations per 4 hours per core
+n_iter=$N
 open_sem $N
 for ((j=1;j<=$n_iter;j++)); do
   #run_with_lock rrpg
