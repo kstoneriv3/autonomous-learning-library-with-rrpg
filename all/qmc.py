@@ -21,18 +21,11 @@ class QMCEngine:
         self.dim = T_max * dim_action + dim_reseed
         self.scramble = scramble
         self.qmc_type = qmc_type.lower()
-
-        if self.qmc_type == "halton":
-            self.engine = scipy.stats.qmc.Halton(self.dim, scramble=self.scramble)
-        elif self.qmc_type == "sobol":
-            self.engine = scipy.stats.qmc.Sobol(self.dim, scramble=self.scramble)
-        elif self.qmc_type == "random":
-            self.engine = None
-        else:
-            assert False
+        self.reseed()
 
         # define pca matrix
         self.pca_matrix = self._get_pca_matrix(T_max, pca_matrix)
+
 
     @staticmethod
     def _get_pca_matrix(n, pca_matrix):

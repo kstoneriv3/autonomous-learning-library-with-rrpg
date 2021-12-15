@@ -54,7 +54,7 @@ class Experiment(ABC):
     def episode(self):
         '''The index of the current training episode'''
 
-    def _log_training_episode(self, returns, fps):
+    def _log_training_episode(self, returns, fps, total_frames):
         if not self._quiet:
             print('episode: {}, frame: {}, fps: {}, returns: {}'.format(self.episode, self.frame, int(fps), returns))
         if returns > self._best_returns:

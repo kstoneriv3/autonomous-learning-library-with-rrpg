@@ -76,7 +76,8 @@ class RRPG(Agent):
         rewards = torch.tensor(self._rewards[:T_trunc], device=features.device)
         log_pis = torch.stack(self._log_pis[:T_trunc])
         self._trajectories.append((features, rewards, log_pis))
-        self._current_batch_size += len(features)
+        # self._current_batch_size += len(features)
+        self._current_batch_size += 1
         self._features = []
         self._rewards = []
         self._log_pis = []
