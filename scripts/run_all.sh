@@ -52,9 +52,6 @@ venv=${venv:-~/Desktop/dev_env_rl}
 N=6
 open_sem $N
 for ((j=1;j<=$n_iter;j++)); do
-  #run_with_lock rrpg
-  #run_with_lock qmcpg
-  #run_with_lock vpg
   run_with_lock all_tasks
 done 
 

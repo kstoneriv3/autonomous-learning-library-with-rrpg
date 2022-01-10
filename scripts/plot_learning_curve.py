@@ -12,7 +12,7 @@ def main():
     parser.add_argument("--log_dir", type=str, default="./runs")
     parser.add_argument("--out_dir", type=str, default="./out")
     parser.add_argument("--max_frame", type=int, default=200000)
-    parser.add_argument("--n_mesh", type=int, default=50)
+    parser.add_argument("--n_mesh", type=int, default=200)
     args = parser.parse_args()
     log_dir = args.log_dir
     out_dir = args.out_dir
