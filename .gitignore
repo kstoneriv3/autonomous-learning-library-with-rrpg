@@ -21,6 +21,7 @@ lsf*
 local
 legacy
 /runs
+/*runs
 /out
 /scripts/runs
 
