@@ -1,6 +1,6 @@
 # The Autonomous Learning Library: A PyTorch Library for Building Reinforcement Learning Agents
 
-This repository contains the implementation of Russian Roulette policy gradient (RRPG) estimator as an extension to the `autonomous-learning-library`, which is a deep reinforcement learning (DRL) library for PyTorch.
+This repository contains the implementation of Russian Roulette policy gradient (RRPG) estimator as an extension to the `autonomous-learning-library`, which is a deep reinforcement learning (DRL) library for PyTorch. This project was conducted in a course "Foundations of Reinforcement Learning" on fall 2021 at ETH Zurich. The report of the project can be found at [`./Can Higher-Order Monte Carlo Methods Help Reinforcemenet Learning?.pdf`](https://github.com/kstoneriv3/autonomous-learning-library-with-rrpg/blob/main/Can%20Higher-Order%20Monte%20Carlo%20Methods%20Help%20Reinforcemenet%20Learning%3F.pdf). 
 
 ## Installation
 
